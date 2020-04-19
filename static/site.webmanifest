@@ -1,7 +1,7 @@
 {
-  "name": "Jobs Done!",
-  "short_name": "Jobs Done!",
-  "description": "Ritual app for ending the work day",
+  "name": "QS for Covid-19",
+  "short_name": "QS for Covid-19",
+  "description": "Habit tracking app based on Jobs Done!",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",

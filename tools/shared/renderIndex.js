@@ -21,10 +21,10 @@ export function renderIndex({ scriptFilename }) {
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Jobs Done!</title>
+    <title>QS for Covid-19</title>
     <meta
       name="description"
-      content="Ritual app for ending the work day"
+      content="Habit tracking app based on Jobs Done!"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
