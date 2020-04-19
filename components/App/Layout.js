@@ -11,10 +11,10 @@ export class Layout extends Component {
 
   render() {
     const { children, onLayout } = this.props;
-
+    const time = (new Date()).getHours();
     return (
       <Container onLayout={onLayout}>
-        <Background />
+        <Background hour={time}/>
         <Content>{children}</Content>
       </Container>
     );
