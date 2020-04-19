@@ -70,7 +70,7 @@ const Container = styled.View`
   height: 52px;
   padding: 0 20px;
   border-radius: 5px;
-  background: rgba(0, 9, 21, 0.5);
+  background: rgba(0, 9, 21, 0);
 `;
 
 const Label = styled.Text`

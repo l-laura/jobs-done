@@ -11,6 +11,7 @@ import { Outro } from '../Outro';
 import { Step } from '../Step';
 import { Layout } from './Layout';
 import { ActiveElement } from './ActiveElement';
+import { Button } from '../shared/Button';
 
 export class App extends UnmountAwareComponent {
   static propTypes = {
@@ -155,6 +156,12 @@ export class App extends UnmountAwareComponent {
 
     return (
       <Layout onLayout={this.handleParentLayout}>
+        <ButtonContainer>
+          <Button
+            label={"\u26E9"}
+            onPress={() => {innerStyle['hide'] = true}}
+          />
+        </ButtonContainer>
         <AnimatedInner style={innerStyle}>
           <ActiveElement
             key="intro"
@@ -296,6 +303,10 @@ const Inner = styled.View`
   position: absolute;
   top: 100%;
   width: 100%;
+`;
+
+const ButtonContainer = styled.View`
+  margin: 0 auto 0 0;
 `;
 
 const AnimatedInner = Animated.createAnimatedComponent(Inner);
