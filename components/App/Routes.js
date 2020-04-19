@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { Route } from 'react-router';
 import { App } from './App';
 import { appData } from '../../data';
+import { qsAppData } from '../../qs-data';
 
 export function Routes() {
   return <Route path="/:stepIndex([0-9]+)?" component={AppRoute} />;
@@ -20,6 +21,7 @@ class AppRoute extends Component {
     return (
       <App
         appData={appData}
+        qsAppData={qsAppData}
         activeStepIndex={getActiveStepIndexFromParams(match.params)}
         setActiveStepIndex={this.setActiveStepIndex}
       />

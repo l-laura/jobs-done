@@ -4,11 +4,12 @@ import { number, func } from 'prop-types';
 import { Animated } from 'react-native';
 import styled from 'styled-components/native';
 import { UnmountAwareComponent } from '../shared/UnmountAwareComponent';
-import { appDataType } from '../shared/propTypes';
+import { appDataType, qsAppDataType } from '../shared/propTypes';
 import { Transition, QUICK_TRANS_TIME } from '../shared/Transition';
 import { Intro } from '../Intro';
 import { Outro } from '../Outro';
 import { Step } from '../Step';
+import { Goal } from '../Goal';
 import { Layout } from './Layout';
 import { ActiveElement } from './ActiveElement';
 import { Button } from '../shared/Button';
@@ -16,6 +17,7 @@ import { Button } from '../shared/Button';
 export class App extends UnmountAwareComponent {
   static propTypes = {
     appData: appDataType,
+    qsAppData: qsAppDataType,
     activeStepIndex: number.isRequired,
     setActiveStepIndex: func.isRequired
   };
@@ -99,10 +101,24 @@ export class App extends UnmountAwareComponent {
     }
   };
 
+
+  handleNextGoal = () => {
+    const {
+      qsAppData: { goals },
+      activeStepIndex,
+      setActiveStepIndex
+    } = this.props;
+
+    if (activeStepIndex < getGoalsNum(goals) - 1) {
+      setActiveStepIndex(activeStepIndex + 1);
+    }
+  };
+
+
   handleKeyDown = e => {
     // DOWN arrow
     if (e.keyCode === 40) {
-      this.handleNext();
+      this.handleNextGoal();
       // UP arrow
     } else if (e.keyCode === 38) {
       this.handlePrev();
@@ -111,7 +127,7 @@ export class App extends UnmountAwareComponent {
 
   render() {
     const {
-      appData: { steps },
+      qsAppData: { goals },
       activeStepIndex
     } = this.props;
     const { rootViewport, elHeights } = this.state;
@@ -119,13 +135,13 @@ export class App extends UnmountAwareComponent {
     return (
       <Transition
         duration={2000}
-        value={getOpacityForState({ steps, rootViewport, elHeights })}
+        value={getOpacityForState({ goals, rootViewport, elHeights })}
       >
         {opacity => (
           <Transition
             duration={QUICK_TRANS_TIME}
             value={getYOffsetForState({
-              steps,
+              goals,
               rootViewport,
               elHeights,
               activeStepIndex
@@ -139,12 +155,13 @@ export class App extends UnmountAwareComponent {
   }
 
   renderAnimated({ yOffset, opacity }) {
-    const { appData, activeStepIndex } = this.props;
+    const { appData, qsAppData, activeStepIndex } = this.props;
     const { steps } = appData;
+    const { goals } = qsAppData;
     const { rootViewport } = this.state;
 
     const introStepIndex = 0;
-    const outroStepIndex = getStepsNum(steps) - 1;
+    const outroStepIndex = getGoalsNum(goals) - 1;
     const isIntroActive = activeStepIndex === 0;
     const isOutroActive = activeStepIndex === outroStepIndex;
     const mobileViewport = isMobileViewport(rootViewport);
@@ -154,13 +171,18 @@ export class App extends UnmountAwareComponent {
       opacity
     };
 
+    const time = (new Date()).getHours();
+
+    // Separate functionality from intro depending on the time of the day
+    // Time handling is defined in many places, make central some other time
+
     return (
-      <Layout onLayout={this.handleParentLayout}>
+      <Layout onLayout={this.handleParentLayout} time={time}>
         <ButtonContainer>
-          <Button
+          {/* <Button
             label={"\u26E9"}
             onPress={() => {innerStyle['hide'] = true}}
-          />
+          /> */}
         </ButtonContainer>
         <AnimatedInner style={innerStyle}>
           <ActiveElement
@@ -168,9 +190,9 @@ export class App extends UnmountAwareComponent {
             state={isIntroActive ? 'active' : 'checked'}
             onLayout={this.createElLayoutHandler(introStepIndex)}
           >
-            {getIntroEl(isIntroActive, this.handleNext, this.handleSelectIntro)}
+            {getIntroEl(isIntroActive, this.handleNext, this.handleSelectIntro, time)}
           </ActiveElement>
-          {steps.map((step, idx) => {
+          {goals.map((goal, idx) => {
             // Account one index for Intro step
             const stepIndex = idx + 1;
             const isChecked = activeStepIndex > stepIndex;
@@ -180,19 +202,19 @@ export class App extends UnmountAwareComponent {
                 : isChecked
                   ? 'checked'
                   : 'disabled';
-
             return (
               <ActiveElement
                 key={stepIndex}
                 state={state}
                 onLayout={this.createElLayoutHandler(stepIndex)}
               >
-                {getStepEl(
-                  step,
+                {getGoalEl(
+                  goal,
                   stepIndex,
                   state,
                   mobileViewport,
-                  this.handleSelect
+                  this.handleSelect,
+                  time > 19 ? true : false 
                 )}
               </ActiveElement>
             );
@@ -212,8 +234,8 @@ export class App extends UnmountAwareComponent {
 
 const getIntroEl = memoize(
   // Memoization is done by shallow comparing every argument
-  (isActive, onStart, onSelect) => (
-    <Intro isActive={isActive} onStart={onStart} onSelect={onSelect} />
+  (isActive, onStart, onSelect, time) => (
+    <Intro isActive={isActive} onStart={onStart} onSelect={onSelect} time={time} />
   )
 );
 
@@ -235,18 +257,36 @@ const getStepEl = memoize(
   )
 );
 
+const getGoalEl = memoize(
+  // Memoization is done by shallow comparing every argument
+  (goal, stepIndex, state, mobileViewport, onSelect, isDone) => (
+    <Goal
+      goal={goal}
+      stepIndex={stepIndex}
+      state={state}
+      mobileViewport={mobileViewport}
+      onSelect={onSelect}
+      isDone={isDone}
+    />
+  )
+);
+
 function getStepsNum(steps) {
   // Add two steps for Intro and Outro
   return steps.length + 2;
 }
 
+function getGoalsNum(goals) {
+  return goals.length + 2;
+}
+
 function getYOffsetForState({
-  steps,
+  goals,
   rootViewport,
   elHeights,
   activeStepIndex
 }) {
-  if (!isLayoutReady({ steps, rootViewport, elHeights })) {
+  if (!isLayoutReady({ goals, rootViewport, elHeights })) {
     return 0;
   }
 
@@ -268,11 +308,11 @@ function getYOffsetForState({
   );
 }
 
-function getOpacityForState({ steps, rootViewport, elHeights }) {
-  return isLayoutReady({ steps, rootViewport, elHeights }) ? 1 : 0;
+function getOpacityForState({ goals, rootViewport, elHeights }) {
+  return isLayoutReady({ goals, rootViewport, elHeights }) ? 1 : 0;
 }
 
-function isLayoutReady({ steps, rootViewport, elHeights }) {
+function isLayoutReady({ goals, rootViewport, elHeights }) {
   // Wait until we now the parent's width/height
   if (!rootViewport) {
     return false;
@@ -280,7 +320,7 @@ function isLayoutReady({ steps, rootViewport, elHeights }) {
 
   // Wait until we now the layout of all steps
   // NOTE: This means all steps are rendered from the start
-  if (Object.keys(elHeights).length < getStepsNum(steps)) {
+  if (Object.keys(elHeights).length < getGoalsNum(goals)) {
     return false;
   }
 

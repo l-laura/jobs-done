@@ -13,16 +13,43 @@ export class Intro extends PureComponent {
   };
 
   render() {
-    const { isActive, onSelect, onStart } = this.props;
+    const { isActive, onSelect, onStart, time } = this.props;
+
+    const morningText = {
+      header: "Rise and shine!",
+      textItems: ["An exciting day awaits.", "Are you ready to pick out your goals for today?"]
+    };
+
+    const dayText = {
+      header: "Hello sunshine!",
+      textItems: ["Here is a reminder of the goals you set for today. Set all sail!"]
+    };
+
+    const eveningText = {
+      header: "Here's to a great day!",
+      textItems: ["You gave it your best.", "Call it a day and take a look at what you achieved:"]
+    };
+
+    var displayItem;
+    if (5 < time && time < 12) {
+      displayItem = morningText;
+    }
+    else if (12 < time && time < 19) {
+      displayItem = dayText;
+    }
+    else {
+      displayItem = eveningText;
+    }
+
+  var paragraphs = displayItem.textItems.map(
+    function(message){ 
+      return <Paragraph>{message}</Paragraph> 
+    });
 
     const content = (
       <Container>
-        <Header>Here&apos;s to a great day!</Header>
-        <Paragraph>You gave it your best.</Paragraph>
-        <Paragraph>
-          Call it a day. Make sure everything&apos;s in check and plot an
-          outline for tomorrow.
-        </Paragraph>
+        <Header>{displayItem.header}</Header>
+        {paragraphs}
         <ButtonContainer>
           {isActive ? (
             <Button label="START" onPress={onStart} />

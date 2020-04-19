@@ -17,11 +17,6 @@ export class Outro extends PureComponent {
     return (
       <Container>
         <Header>{setPhrase}</Header>
-        <Paragraph>Let work marinate in your subconscious overnight.</Paragraph>
-        <Paragraph>
-          Time to unwind. What do you feel up for this evening?
-        </Paragraph>
-        <Activities activities={activities} />
       </Container>
     );
   }

@@ -1,4 +1,4 @@
-import { node, func } from 'prop-types';
+import { node, func, number } from 'prop-types';
 import React, { Component } from 'react';
 import styled from 'styled-components/native';
 import { Background } from './Background';
@@ -6,12 +6,12 @@ import { Background } from './Background';
 export class Layout extends Component {
   static propTypes = {
     children: node,
-    onLayout: func
+    onLayout: func,
+    time: number
   };
 
   render() {
-    const { children, onLayout } = this.props;
-    const time = (new Date()).getHours();
+    const { children, onLayout, time } = this.props;
     return (
       <Container onLayout={onLayout}>
         <Background hour={time}/>
